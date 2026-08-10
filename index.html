@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grimoire Cozy 🧹✨</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2d2235">
+  <style>
+    :root {
+      --bg: #2d2235;
+      --card-bg: #3d2f47;
+      --accent: #c084fc;
+      --accent-glow: #e879f9;
+      --text: #f3e8ff;
+      --text-muted: #a855f7;
+      --success: #4ade80;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', cursive, system-ui, sans-serif; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 1rem;
+      min-height: 100vh;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* En-tête avec Chat et Potion */
+    .header-card {
+      background: var(--card-bg);
+      border-radius: 24px;
+      padding: 1.5rem;
+      text-align: center;
+      border: 2px solid #5b4369;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      position: relative;
+    }
+
+    .cat-avatar {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+      filter: drop-shadow(0 0 10px var(--accent-glow));
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    h1 { font-size: 1.4rem; color: #f3e8ff; margin-bottom: 0.2rem; }
+    p.subtitle { font-size: 0.85rem; color: #b69df8; }
+
+    /* Potion Magique */
+    .potion-container {
+      margin: 1.2rem auto 0.5rem;
+      width: 70px;
+      height: 90px;
+      border: 3px solid #f3e8ff;
+      border-radius: 10px 10px 35px 35px;
+      position: relative;
+      overflow: hidden;
+      background: rgba(0,0,0,0.2);
+    }
+    
+    .potion-neck {
+      width: 30px;
+      height: 12px;
+      background: #f3e8ff;
+      margin: 0 auto;
+      border-radius: 4px 4px 0 0;
+    }
+
+    .potion-liquid {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 0%;
+      background: linear-gradient(180deg, var(--accent-glow), var(--accent));
+      transition: height 0.5s ease;
+      box-shadow: 0 0 15px var(--accent-glow);
+    }
+
+    /* Formulaire d'ajout */
+    .input-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      background: var(--card-bg);
+      border: 2px solid #5b4369;
+      border-radius: 16px;
+      padding: 0.8rem 1rem;
+      color: white;
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent);
+    }
+
+    button.add-btn {
+      background: var(--accent);
+      border: none;
+      border-radius: 16px;
+      padding: 0 1.2rem;
+      color: #2d2235;
+      font-weight: bold;
+      font-size: 1.2rem;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(192, 132, 252, 0.4);
+    }
+
+    /* Liste de Tâches */
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .task-item {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid #5b4369;
+      transition: all 0.2s;
+    }
+
+    .task-item.completed {
+      opacity: 0.6;
+      border-color: transparent;
+    }
+
+    .task-item.completed span {
+      text-decoration: line-through;
+    }
+
+    .task-left {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .checkbox {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .task-item.completed .checkbox {
+      background: var(--accent);
+    }
+
+    .delete-btn {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <div class="header-card">
+      <div class="cat-avatar" id="cat">🐾</div>
+      <h1>Grimoire de Magie</h1>
+      <p class="subtitle" id="status-text">Prépare tes élixirs du jour...</p>
+      
+      <div class="potion-neck"></div>
+      <div class="potion-container">
+        <div class="potion-liquid" id="potion"></div>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <input type="text" id="taskInput" placeholder="Ajouter un rituel ou un sort..." />
+      <button class="add-btn" onclick="addTask()">✨</button>
+    </div>
+
+    <div class="task-list" id="taskList"></div>
+
+  </div>
+
+  <script>
+    let tasks = JSON.parse(localStorage.getItem('witchy_tasks')) || [];
+
+    function saveAndRender() {
+      localStorage.setItem('witchy_tasks', JSON.stringify(tasks));
+      const list = document.getElementById('taskList');
+      list.innerHTML = '';
+
+      let completedCount = 0;
+
+      tasks.forEach((task, index) => {
+        if (task.completed) completedCount++;
+
+        const item = document.createElement('div');
+        item.className = `task-item ${task.completed ? 'completed' : ''}`;
+        item.innerHTML = `
+          <div class="task-left" onclick="toggleTask(${index})">
+            <div class="checkbox">${task.completed ? '🧹' : ''}</div>
+            <span>${task.text}</span>
+          </div>
+          <button class="delete-btn" onclick="deleteTask(${index})">🗑️</button>
+        `;
+        list.appendChild(item);
+      });
+
+      const pct = tasks.length === 0 ? 0 : (completedCount / tasks.length) * 100;
+      document.getElementById('potion').style.height = `${pct}%`;
+
+      const cat = document.getElementById('cat');
+      const status = document.getElementById('status-text');
+      if (tasks.length === 0) {
+        cat.innerText = '🐈‍⬛';
+        status.innerText = 'Le chaudron est vide... Ajoute un sort !';
+      } else if (pct === 100) {
+        cat.innerText = '😻✨';
+        status.innerText = 'Magie accomplie ! Potion parfaite !';
+      } else if (pct > 50) {
+        cat.innerText = '🔮';
+        status.innerText = 'La potion commence à mijoter...';
+      } else {
+        cat.innerText = '🐾';
+        status.innerText = 'Ton petit compagnon t\'observe...';
+      }
+    }
+
+    function addTask() {
+      const input = document.getElementById('taskInput');
+      if (!input.value.trim()) return;
+      tasks.push({ text: input.value, completed: false });
+      input.value = '';
+      saveAndRender();
+    }
+
+    function toggleTask(index) {
+      tasks[index].completed = !tasks[index].completed;
+      saveAndRender();
+    }
+
+    function deleteTask(index) {
+      tasks.splice(index, 1);
+      saveAndRender();
+    }
+
+    // Enregistrement du Service Worker pour le mode PWA / hors-ligne
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(err => console.log('SW error:', err));
+    }
+
+    saveAndRender();
+  </script>
+</body>
+</html>
