@@ -1,0 +1,15 @@
+{
+  "name": "Grimoire de Magie",
+  "short_name": "Grimoire",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#2d2235",
+  "theme_color": "#2d2235",
+  "icons": [
+    {
+      "src": "https://images.emojiterra.com/google/android-12l/512px/1f408-1f408.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
